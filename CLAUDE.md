@@ -1,5 +1,10 @@
 # Berlin Transit Alert — Project Instructions
 
+## Tech Stack
+
+- **Language:** TypeScript
+- **Package manager:** pnpm
+
 ## Documentation Pattern
 
 `prd.md` stays high-level. Each implementation step gets a dedicated spec file under `docs/specs/` containing the concrete how — commands, schemas, config, decisions.
@@ -16,6 +21,7 @@ Keep specs concise — bullet points and code over prose, no filler sentences.
 
 | Step                           | Spec                           |
 | ------------------------------ | ------------------------------ |
+| Turborepo monorepo setup       | `docs/specs/monorepo.md`       |
 | EC2, Nginx, PM2, Cloudflare    | `docs/specs/infrastructure.md` |
 | GitHub Actions CI/CD           | `docs/specs/cicd.md`           |
 | NestJS setup                   | `docs/specs/backend-setup.md`  |

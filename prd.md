@@ -90,10 +90,11 @@ A read-only public page showing the current status of all U-Bahn and S-Bahn line
 
 | Layer           | Technology                                          |
 | --------------- | --------------------------------------------------- |
-| Frontend        | Next.js                                             |
-| Backend         | NestJS                                              |
+| Monorepo        | Turborepo + pnpm workspaces                         |
+| Frontend        | Next.js (`apps/web`)                                |
+| Backend         | NestJS (`apps/api`)                                 |
 | Database        | PostgreSQL (self-hosted on EC2)                     |
-| Crawler         | Crawl4AI                                            |
+| Crawler         | Playwright (Node.js)                                |
 | LLM Parser      | Gemini Flash (free tier)                            |
 | Scheduler       | `@nestjs/schedule` (cron inside NestJS)             |
 | Notifications   | Telegram Bot API                                    |
@@ -161,7 +162,8 @@ User → Cloudflare → EC2 (Nginx → NestJS app)
 
 **Backend**
 
-- [ ] Initialize NestJS project
+- [ ] Initialize Turborepo monorepo → [spec](docs/specs/monorepo.md)
+- [ ] Initialize NestJS project → [spec](docs/specs/backend-setup.md)
 - [ ] Set up PostgreSQL and define schema
 - [ ] Build Telegram bot with basic commands (`/start`, `/add`, `/remove`, `/mylines`, `/status`)
 - [ ] Implement Crawl4AI crawler with `@nestjs/schedule`
