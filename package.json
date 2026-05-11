@@ -1,0 +1,16 @@
+{
+  "name": "berlin-transit-alert",
+  "version": "0.0.1",
+  "description": "",
+  "homepage": "https://github.com/hyunyikim/berlin-transit-alert#readme",
+  "private": true,
+  "scripts": {
+    "build": "turbo build",
+    "dev": "turbo dev",
+    "lint": "turbo lint",
+    "typecheck": "turbo typecheck"
+  },
+  "devDependencies": {
+    "turbo": "latest"
+  }
+}
