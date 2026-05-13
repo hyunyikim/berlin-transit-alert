@@ -93,7 +93,7 @@ A read-only public page showing the current status of all U-Bahn and S-Bahn line
 | Monorepo        | Turborepo + pnpm workspaces                         |
 | Frontend        | Next.js (`apps/web`)                                |
 | Backend         | NestJS (`apps/api`)                                 |
-| Database        | PostgreSQL (self-hosted on EC2)                     |
+| Database        | Supabase (managed PostgreSQL)                       |
 | Crawler         | Playwright (Node.js)                                |
 | LLM Parser      | Gemini Flash (free tier)                            |
 | Scheduler       | `@nestjs/schedule` (cron inside NestJS)             |
@@ -129,13 +129,13 @@ A read-only public page showing the current status of all U-Bahn and S-Bahn line
 ```
 User → Cloudflare → EC2 (Nginx → NestJS app)
                           ↓
-                     PostgreSQL
-                    (same server)
+                     Supabase (managed PostgreSQL)
 ```
 
 - PM2 keeps the NestJS process alive and auto-restarts on crash
 - GitHub Actions SSHes into EC2 on every push to `main`, pulls latest code, rebuilds, and restarts PM2
 - Crawler and cron jobs run inside NestJS via `@nestjs/schedule` — no separate infrastructure needed
+- Supabase handles database hosting, backups, and connection pooling — no PostgreSQL installation on EC2
 
 ---
 
@@ -162,9 +162,9 @@ User → Cloudflare → EC2 (Nginx → NestJS app)
 
 **Backend**
 
-- [ ] Initialize Turborepo monorepo → [spec](docs/specs/monorepo.md)
-- [ ] Initialize NestJS project → [spec](docs/specs/backend-setup.md)
-- [ ] Set up PostgreSQL and define schema
+- [x] Initialize Turborepo monorepo → [spec](docs/specs/monorepo.md)
+- [x] Initialize NestJS project → [spec](docs/specs/backend-setup.md)
+- [x] Set up Supabase project and define schema → [spec](docs/specs/database.md)
 - [ ] Build Telegram bot with basic commands (`/start`, `/add`, `/remove`, `/mylines`, `/status`)
 - [ ] Implement Crawl4AI crawler with `@nestjs/schedule`
 - [ ] Integrate Gemini Flash for delay data parsing
@@ -195,4 +195,4 @@ These are items to revisit during implementation as the codebase and usage patte
 | 2   | How to deduplicate notifications for the same ongoing disruption? | Need a strategy to track already-notified events        |
 | 3   | What happens if BVG or S-Bahn changes their website structure?    | Crawler may break — need a monitoring/alerting strategy |
 | 4   | Should the Telegram bot support German language?                  | Depends on target user feedback post-launch             |
-| 5   | Database backup strategy                                          | `pg_dump` to S3 — timing and frequency TBD              |
+| 5   | Database backup strategy                                          | Handled by Supabase (daily backups on free tier)        |
