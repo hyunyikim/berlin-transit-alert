@@ -165,7 +165,7 @@ User → Cloudflare → EC2 (Nginx → NestJS app)
 - [x] Initialize Turborepo monorepo → [spec](docs/specs/monorepo.md)
 - [x] Initialize NestJS project → [spec](docs/specs/backend-setup.md)
 - [x] Set up Supabase project and define schema → [spec](docs/specs/database.md)
-- [ ] Build Telegram bot with basic commands (`/start`, `/add`, `/remove`, `/mylines`, `/status`)
+- [x] Build Telegram bot with basic commands (`/start`, `/add`, `/remove`, `/mylines`, `/status`) → [spec](docs/specs/telegram-bot.md)
 - [ ] Implement Crawl4AI crawler with `@nestjs/schedule`
 - [ ] Integrate Gemini Flash for delay data parsing
 - [ ] Store parsed delay data in the database

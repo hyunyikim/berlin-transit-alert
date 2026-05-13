@@ -1,0 +1,69 @@
+import { Injectable } from '@nestjs/common';
+import { supabase } from '../supabase';
+
+@Injectable()
+export class TelegramService {
+  async upsertUser(telegramId: number): Promise<void> {
+    await supabase
+      .from('bta_users')
+      .upsert({ telegram_id: telegramId }, { onConflict: 'telegram_id' });
+  }
+
+  private async getUserId(telegramId: number): Promise<number | null> {
+    const { data } = await supabase
+      .from('bta_users')
+      .select('id')
+      .eq('telegram_id', telegramId)
+      .single();
+    return data?.id ?? null;
+  }
+
+  async addSubscription(
+    telegramId: number,
+    line: string,
+  ): Promise<'added' | 'exists'> {
+    const userId = await this.getUserId(telegramId);
+    if (!userId) return 'exists';
+    const { error } = await supabase
+      .from('bta_subscriptions')
+      .insert({ user_id: userId, line: line.toUpperCase() });
+    return error?.code === '23505' ? 'exists' : 'added';
+  }
+
+  async removeSubscription(
+    telegramId: number,
+    line: string,
+  ): Promise<'removed' | 'not_found'> {
+    const userId = await this.getUserId(telegramId);
+    if (!userId) return 'not_found';
+    const { data } = await supabase
+      .from('bta_subscriptions')
+      .delete()
+      .eq('user_id', userId)
+      .eq('line', line.toUpperCase())
+      .select();
+    return data && data.length > 0 ? 'removed' : 'not_found';
+  }
+
+  async getSubscriptions(telegramId: number): Promise<string[]> {
+    const userId = await this.getUserId(telegramId);
+    if (!userId) return [];
+    const { data } = await supabase
+      .from('bta_subscriptions')
+      .select('line')
+      .eq('user_id', userId)
+      .order('line');
+    return data?.map((r) => r.line) ?? [];
+  }
+
+  async getActiveDisruptions(
+    line: string,
+  ): Promise<{ status: string; message: string }[]> {
+    const { data } = await supabase
+      .from('bta_disruptions')
+      .select('status, message')
+      .eq('line', line.toUpperCase())
+      .is('resolved_at', null);
+    return data ?? [];
+  }
+}
