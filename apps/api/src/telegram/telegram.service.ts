@@ -1,16 +1,16 @@
 import { Injectable } from '@nestjs/common';
-import { supabase } from '../supabase';
+import { getSupabase } from '../supabase';
 
 @Injectable()
 export class TelegramService {
   async upsertUser(telegramId: number): Promise<void> {
-    await supabase
+    await getSupabase()
       .from('bta_users')
       .upsert({ telegram_id: telegramId }, { onConflict: 'telegram_id' });
   }
 
   private async getUserId(telegramId: number): Promise<number | null> {
-    const { data } = await supabase
+    const { data } = await getSupabase()
       .from('bta_users')
       .select('id')
       .eq('telegram_id', telegramId)
@@ -24,7 +24,7 @@ export class TelegramService {
   ): Promise<'added' | 'exists'> {
     const userId = await this.getUserId(telegramId);
     if (!userId) return 'exists';
-    const { error } = await supabase
+    const { error } = await getSupabase()
       .from('bta_subscriptions')
       .insert({ user_id: userId, line: line.toUpperCase() });
     return error?.code === '23505' ? 'exists' : 'added';
@@ -36,7 +36,7 @@ export class TelegramService {
   ): Promise<'removed' | 'not_found'> {
     const userId = await this.getUserId(telegramId);
     if (!userId) return 'not_found';
-    const { data } = await supabase
+    const { data } = await getSupabase()
       .from('bta_subscriptions')
       .delete()
       .eq('user_id', userId)
@@ -48,7 +48,7 @@ export class TelegramService {
   async getSubscriptions(telegramId: number): Promise<string[]> {
     const userId = await this.getUserId(telegramId);
     if (!userId) return [];
-    const { data } = await supabase
+    const { data } = await getSupabase()
       .from('bta_subscriptions')
       .select('line')
       .eq('user_id', userId)
@@ -59,7 +59,7 @@ export class TelegramService {
   async getActiveDisruptions(
     line: string,
   ): Promise<{ status: string; message: string }[]> {
-    const { data } = await supabase
+    const { data } = await getSupabase()
       .from('bta_disruptions')
       .select('status, message')
       .eq('line', line.toUpperCase())
