@@ -55,14 +55,20 @@ create table bta_subscriptions (
 );
 
 create table bta_disruptions (
-  id bigint generated always as identity primary key,
-  line text not null,
-  status text not null, -- 'delayed' | 'disrupted' | 'normal'
-  message text not null,
-  source text not null, -- 'bvg' | 'sbahn'
+  id          bigint generated always as identity primary key,
+  source      text not null,              -- 'bvg' | 'sbahn'
+  line        text not null,              -- e.g. 'U2'
+  stops       text not null default '',   -- e.g. 'U Senefelderplatz' or 'Between S+U Wuhletal and U Hellersdorf'
+  tag         text not null default '',   -- e.g. 'No Stop'
+  "from"      text not null default '',   -- ISO date string or '' when unknown
+  "until"     text not null default '',   -- ISO date string or '' when unknown
+  headline    text not null,              -- h4 text
+  description text not null default '',   -- paragraph text
   detected_at timestamptz default now(),
-  resolved_at timestamptz,
-  notified boolean default false
+  resolved_at timestamptz,               -- null = still active
+  notified    boolean default false,
+
+  unique (source, line, "from", "until", headline)
 );
 
 create index on bta_disruptions(line, resolved_at);
@@ -84,8 +90,9 @@ Inject or import `supabase` directly in services — no module wrapper needed fo
 
 ## Decisions & Trade-offs
 
-| Decision                                    | Rationale                                                                                                                                                              |
-| ------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Supabase over self-hosted PostgreSQL        | Eliminates PostgreSQL ops on EC2 (install, config, backups, security patches). Free tier covers MVP volume.                                                            |
-| Secret key (new) over service_role (legacy) | Supabase replaced `anon`/`service_role` JWT keys with `publishable`/`secret`. Secret key gives unrestricted access; RLS is unnecessary overhead for a server-only app. |
-| `resolved_at` nullable on disruptions       | `null` = active disruption; set when crawler no longer reports the line as affected. Used for deduplication.                                                           |
+| Decision                                      | Rationale                                                                                                                                                                          |
+| --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Supabase over self-hosted PostgreSQL          | Eliminates PostgreSQL ops on EC2 (install, config, backups, security patches). Free tier covers MVP volume.                                                                        |
+| Secret key (new) over service_role (legacy)   | Supabase replaced `anon`/`service_role` JWT keys with `publishable`/`secret`. Secret key gives unrestricted access; RLS is unnecessary overhead for a server-only app.             |
+| `resolved_at` nullable on disruptions         | `null` = active disruption; set when crawler no longer reports the line as affected.                                                                                               |
+| `unique(source, line, from, until, headline)` | Deduplication key — same disruption crawled repeatedly inserts only once via `ON CONFLICT DO NOTHING`. `source` is included because BVG and S-Bahn could have identical headlines. |

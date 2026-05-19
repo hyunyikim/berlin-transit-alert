@@ -56,6 +56,8 @@ export class TelegramService {
     return data?.map((r) => r.line) ?? [];
   }
 
+  // TODO: update columns to match new schema: select('tag, headline, description')
+  //       and update return type + call sites in telegram.update.ts
   async getActiveDisruptions(
     line: string,
   ): Promise<{ status: string; message: string }[]> {

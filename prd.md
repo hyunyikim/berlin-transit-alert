@@ -113,7 +113,7 @@ A read-only public page showing the current status of all U-Bahn and S-Bahn line
 ```
 [BVG / S-Bahn websites]
         ↓  (every 10 min via @nestjs/schedule)
-[Crawl4AI — raw HTML/text]
+[Playwright — raw HTML/text]
         ↓
 [Gemini Flash — structured delay data]
         ↓
@@ -166,7 +166,7 @@ User → Cloudflare → EC2 (Nginx → NestJS app)
 - [x] Initialize NestJS project → [spec](docs/specs/backend-setup.md)
 - [x] Set up Supabase project and define schema → [spec](docs/specs/database.md)
 - [x] Build Telegram bot with basic commands (`/start`, `/add`, `/remove`, `/mylines`, `/status`) → [spec](docs/specs/telegram-bot.md)
-- [ ] Implement Crawl4AI crawler with `@nestjs/schedule`
+- [x] Implement Playwright crawler with `@nestjs/schedule` → [spec](docs/specs/crawler.md)
 - [ ] Integrate Gemini Flash for delay data parsing
 - [ ] Store parsed delay data in the database
 - [ ] Implement notification logic (match delays → users → send message)
