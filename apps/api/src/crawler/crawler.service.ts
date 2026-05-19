@@ -15,6 +15,7 @@ export interface Disruption {
   until: string;
   headline: string;
   description: string;
+  lastUpdatedAt: string;
 }
 
 /** @deprecated use Disruption */
@@ -122,6 +123,13 @@ export class CrawlerService implements OnModuleInit, OnModuleDestroy {
           )
           .catch(() => '');
 
+        const lastUpdatedAt = await li
+          .$eval(
+            '[class*="modDate"] time[datetime]',
+            (el) => el.getAttribute('datetime') ?? '',
+          )
+          .catch(() => '');
+
         return {
           line,
           stops,
@@ -137,6 +145,7 @@ export class CrawlerService implements OnModuleInit, OnModuleDestroy {
               .catch(() => '')),
           headline,
           description,
+          lastUpdatedAt,
         };
       }),
     );
@@ -159,10 +168,11 @@ export class CrawlerService implements OnModuleInit, OnModuleDestroy {
       until: d.until,
       headline: d.headline,
       description: d.description,
+      last_updated_at: d.lastUpdatedAt,
     }));
 
     const { error } = await getSupabase().from('bta_disruptions').upsert(rows, {
-      onConflict: 'source,line,from,until,headline',
+      onConflict: 'source,line,from,until,headline,last_updated_at',
       ignoreDuplicates: true,
     });
 
