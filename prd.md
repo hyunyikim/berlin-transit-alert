@@ -68,7 +68,7 @@ A read-only public page showing the current status of all U-Bahn and S-Bahn line
 ### 4.3 System / Backend Features
 
 - Crawler runs on a schedule (every 10 minutes) to collect delay data from BVG and S-Bahn Berlin websites
-- Collected raw data is parsed by an LLM into a structured format (line, status, message, timestamp)
+- Collected data is parsed into a structured format (line, status, message, timestamp)
 - Parsed data is stored in the database
 - The system matches disrupted lines against subscribed users and sends Telegram notifications
 - Duplicate notifications for the same active disruption are suppressed
@@ -95,7 +95,6 @@ A read-only public page showing the current status of all U-Bahn and S-Bahn line
 | Backend         | NestJS (`apps/api`)                                 |
 | Database        | Supabase (managed PostgreSQL)                       |
 | Crawler         | Playwright (Node.js)                                |
-| LLM Parser      | Gemini Flash (free tier)                            |
 | Scheduler       | `@nestjs/schedule` (cron inside NestJS)             |
 | Notifications   | Telegram Bot API                                    |
 | Hosting         | AWS EC2 t3.micro                                    |
@@ -113,9 +112,7 @@ A read-only public page showing the current status of all U-Bahn and S-Bahn line
 ```
 [BVG / S-Bahn websites]
         ↓  (every 10 min via @nestjs/schedule)
-[Playwright — raw HTML/text]
-        ↓
-[Gemini Flash — structured delay data]
+[Playwright — structured delay data]
         ↓
 [PostgreSQL — store parsed delays]
         ↓
@@ -167,8 +164,7 @@ User → Cloudflare → EC2 (Nginx → NestJS app)
 - [x] Set up Supabase project and define schema → [spec](docs/specs/database.md)
 - [x] Build Telegram bot with basic commands (`/start`, `/add`, `/remove`, `/mylines`, `/status`) → [spec](docs/specs/telegram-bot.md)
 - [x] Implement Playwright crawler with `@nestjs/schedule` → [spec](docs/specs/crawler.md)
-- [ ] Integrate Gemini Flash for delay data parsing
-- [ ] Store parsed delay data in the database
+- [x] Store parsed delay data in the database
 - [ ] Implement notification logic (match delays → users → send message)
 - [ ] Handle deduplication (don't re-notify for the same ongoing disruption)
 
