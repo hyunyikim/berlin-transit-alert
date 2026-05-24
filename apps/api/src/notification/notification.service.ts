@@ -1,23 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { Disruption, formatDisruption } from '../disruption-format';
 import { getSupabase } from '../supabase';
 import { TelegramService } from '../telegram/telegram.service';
 
-const SBAHN_BASE = 'https://sbahn.berlin';
-const SOURCE_FALLBACK_URLS: Record<string, string> = {
-  bvg: 'https://www.bvg.de/en/connections/traffic-news',
-  sbahn: SBAHN_BASE,
-};
-
-interface UnnotifiedDisruption {
+interface UnnotifiedDisruption extends Disruption {
   id: number;
-  source: string;
-  line: string;
-  tag: string;
-  headline: string;
-  description: string;
-  stops: string;
-  until: string;
-  url: string;
 }
 
 @Injectable()
@@ -50,7 +37,7 @@ export class NotificationService {
       }
 
       for (const disruption of lineDisruptions) {
-        const message = this.formatMessage(disruption);
+        const message = formatDisruption(disruption);
         for (const telegramId of telegramIds) {
           try {
             await this.telegram.sendMessage(telegramId, message);
@@ -65,21 +52,6 @@ export class NotificationService {
     if (notifiedIds.length) {
       await this.markNotified(notifiedIds);
     }
-  }
-
-  private formatMessage(d: UnnotifiedDisruption): string {
-    const lines: string[] = [`⚠️ ${d.line} — ${d.tag}`, ''];
-    lines.push(d.headline);
-    if (d.description) lines.push(d.description);
-    lines.push('');
-    if (d.stops) lines.push(`📍 ${d.stops}`);
-    if (d.until) lines.push(`🕐 Until ${d.until}`);
-    const url =
-      d.source === 'sbahn' && d.url
-        ? `${SBAHN_BASE}${d.url}`
-        : SOURCE_FALLBACK_URLS[d.source];
-    if (url) lines.push(`🔗 ${url}`);
-    return lines.join('\n').trimEnd();
   }
 
   private async fetchUnnotified(): Promise<UnnotifiedDisruption[]> {

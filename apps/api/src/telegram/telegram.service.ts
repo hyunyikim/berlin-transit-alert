@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Disruption } from '../disruption-format';
 import { InjectBot } from 'nestjs-telegraf';
 import { Telegraf } from 'telegraf';
 import { getSupabase } from '../supabase';
@@ -64,12 +65,10 @@ export class TelegramService {
     return data?.map((r) => r.line) ?? [];
   }
 
-  async getActiveDisruptions(
-    line: string,
-  ): Promise<{ tag: string; headline: string; description: string }[]> {
+  async getActiveDisruptions(line: string): Promise<Disruption[]> {
     const { data } = await getSupabase()
       .from('bta_disruptions')
-      .select('tag, headline, description')
+      .select('source, line, tag, headline, description, stops, until, url')
       .eq('line', line.toUpperCase())
       .is('resolved_at', null);
     return data ?? [];
