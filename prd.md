@@ -165,7 +165,7 @@ User → Cloudflare → EC2 (Nginx → NestJS app)
 - [x] Build Telegram bot with basic commands (`/start`, `/add`, `/remove`, `/mylines`, `/status`) → [spec](docs/specs/telegram-bot.md)
 - [x] Implement Playwright crawler with `@nestjs/schedule` → [spec](docs/specs/crawler.md)
 - [x] Store parsed delay data in the database
-- [ ] Implement notification logic (match delays → users → send message)
+- [ ] Implement notification logic (match delays → users → send message) → [spec](docs/specs/notifications.md)
 - [ ] Handle deduplication (don't re-notify for the same ongoing disruption)
 
 **Frontend**

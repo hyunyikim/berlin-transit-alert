@@ -16,7 +16,7 @@ export interface Disruption {
   headline: string;
   description: string;
   lastUpdatedAt: string;
-  href?: string; // internal only; not persisted to DB
+  href?: string;
 }
 
 /** @deprecated use Disruption */
@@ -368,7 +368,16 @@ export class CrawlerService implements OnModuleInit, OnModuleDestroy {
   ): Promise<void> {
     if (!disruptions.length) return;
 
-    const rows = disruptions.map((d) => ({
+    // Split multi-line disruptions (e.g. "S8, S85, S9") into one row per line
+    const expanded = disruptions.flatMap((d) =>
+      d.line
+        .split(',')
+        .map((l) => l.trim())
+        .filter(Boolean)
+        .map((l) => ({ ...d, line: l })),
+    );
+
+    const rows = expanded.map((d) => ({
       source,
       line: d.line,
       stops: d.stops,
@@ -378,6 +387,7 @@ export class CrawlerService implements OnModuleInit, OnModuleDestroy {
       headline: d.headline,
       description: d.description,
       last_updated_at: d.lastUpdatedAt,
+      url: d.href ?? '',
     }));
 
     const { error } = await getSupabase().from('bta_disruptions').upsert(rows, {

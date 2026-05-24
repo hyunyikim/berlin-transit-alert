@@ -1,8 +1,16 @@
 import { Injectable } from '@nestjs/common';
+import { InjectBot } from 'nestjs-telegraf';
+import { Telegraf } from 'telegraf';
 import { getSupabase } from '../supabase';
 
 @Injectable()
 export class TelegramService {
+  constructor(@InjectBot() private readonly bot: Telegraf) {}
+
+  async sendMessage(telegramId: string | number, text: string): Promise<void> {
+    await this.bot.telegram.sendMessage(telegramId, text);
+  }
+
   async upsertUser(telegramId: number): Promise<void> {
     await getSupabase()
       .from('bta_users')
@@ -56,14 +64,12 @@ export class TelegramService {
     return data?.map((r) => r.line) ?? [];
   }
 
-  // TODO: update columns to match new schema: select('tag, headline, description')
-  //       and update return type + call sites in telegram.update.ts
   async getActiveDisruptions(
     line: string,
-  ): Promise<{ status: string; message: string }[]> {
+  ): Promise<{ tag: string; headline: string; description: string }[]> {
     const { data } = await getSupabase()
       .from('bta_disruptions')
-      .select('status, message')
+      .select('tag, headline, description')
       .eq('line', line.toUpperCase())
       .is('resolved_at', null);
     return data ?? [];

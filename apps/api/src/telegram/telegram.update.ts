@@ -76,7 +76,11 @@ export class TelegramUpdate {
       return;
     }
     const text = disruptions
-      .map((d) => `[${d.status.toUpperCase()}] ${d.message}`)
+      .map((d) => {
+        const parts = [`[${d.tag.toUpperCase()}] ${d.headline}`];
+        if (d.description) parts.push(d.description);
+        return parts.join('\n');
+      })
       .join('\n\n');
     await ctx.reply(`${line.toUpperCase()} disruptions:\n\n${text}`);
   }
