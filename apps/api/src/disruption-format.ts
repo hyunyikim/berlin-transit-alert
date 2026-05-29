@@ -11,6 +11,7 @@ export interface Disruption {
   headline: string;
   description: string;
   stops: string;
+  from?: string;
   until: string;
   url: string;
 }
@@ -21,7 +22,13 @@ export function formatDisruption(d: Disruption): string {
   if (d.description) lines.push(d.description);
   lines.push('');
   if (d.stops) lines.push(`📍 ${d.stops}`);
-  if (d.until) lines.push(`🕐 Until ${d.until}`);
+  if (d.from && d.until) {
+    lines.push(`🕐 ${d.from} – ${d.until}`);
+  } else if (d.from) {
+    lines.push(`🕐 ${d.from.charAt(0).toUpperCase()}${d.from.slice(1)}`);
+  } else if (d.until) {
+    lines.push(`🕐 Until ${d.until}`);
+  }
   const url =
     d.source === 'sbahn' && d.url
       ? `${SBAHN_BASE}${d.url}`

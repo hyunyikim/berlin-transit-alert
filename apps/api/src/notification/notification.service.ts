@@ -57,7 +57,9 @@ export class NotificationService {
   private async fetchUnnotified(): Promise<UnnotifiedDisruption[]> {
     const { data, error } = await getSupabase()
       .from('bta_disruptions')
-      .select('id, source, line, tag, headline, description, stops, until, url')
+      .select(
+        'id, source, line, tag, headline, description, stops, from, until, url',
+      )
       .eq('notified', false)
       .is('resolved_at', null);
     if (error) this.logger.error(`fetchUnnotified: ${error.message}`);
